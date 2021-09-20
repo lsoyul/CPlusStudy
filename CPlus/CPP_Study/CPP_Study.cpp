@@ -1,59 +1,59 @@
 ﻿#include <iostream>
 using namespace std;
 
-// Comment
-// Ctrl+K+C (Comment) Ctrl+K+U (Uncomment)
+// Boolean (참/거짓)
+bool isHighLevel = true;
+bool isPlayer = true;
+bool isMale = false;
 
-/*
- multiple 
- line 
- comments
-*/
+// [Note]
+// bool은 1Byte 정수
+// -> 어셈블리에서 bool 이라는 것은 없음.
 
-// 변수 선언
-// [타입] [이름];
-// [타입] [이름] = [초기값];
+int isFemale = 1;	// 정수로도 판별 가능하지만..
 
+// bool을 보았을 때 참/거짓 둘 중 하나라는 힌트를 준다. (가독성) (하이레벨 언어)
 
-// 0 이 아닌 초기화 값이 있으면 .data 영역
-int hp = 100;
-
-
-// 초기값이 0 이거나, 초기값이 없는 변수라면 .bss 영역
-char a;     // 1byte
-short b;    // 2bytes
-int c;      // 4bytes
-__int64 d;  // 8bytes (long long)
-
-unsigned char ua;     // 1byte
-unsigned short ub;    // 2bytes
-unsigned int uc;      // 4bytes
-unsigned __int64 ud;  // 8bytes (long long)
+// bool > 왜 1byte 정수일까?
+// - 레지스터의 최소단위 al 같이 어차피 instruction 연산의 최소 단위가 1byte 단위로 이루어짐.
 
 
-// 참고) 이론적으로 양수만 존재할 수 있는 데이터? unsigned?
-// 무조건 unsigned를 사용할지 의견이 갈림
-// - 레벨이 음수라는 것은 말이 안된다 -> 그러면 차라리 그 자리에서 프로그램을 크래시 내서 버그를 찾는게 나을 수 있다.
-// - unsigned / signed 사이의 변환!
-// => 여러가지 고려가 필요함
+// 실수 (부동소수점)
+// float double
+// 3.14
+// Q1 -> . 앞/뒤를 기준으로 16/16 으로 끊으면? 
+// => (0~65535).(0~65535) => 좋은 방법이 아님.
+
+// 부동(뜰 부, 움직일 동) 소수점
+// .의 위치를 유동적으로 움직여서 표현하는 방법
+
+// 3.1415926535
+// 3.1415926535 = 0.31415926535 * 10 = 0.0031415926535 * 10^3
+// 1) 정규화 = 0.31415926535 * 10
+// 2) 3141596535 (유효숫자) , 1 (지수) => 부동소수점의 핵심
+
+// float 부호(1) 지수(8) 유효숫자(23) = 32bits = 4bytes
+// double 부호(1) 지수(11) 유효숫자(52) = 64bits = 8bytes
+
+double attackSpeed2 = 123.4123;	// 기본적으로 double	(8bytes)
+float attackSpeed = -3.375f;		// f 붙여야 float	(4bytes)
 
 
-// 변수 타입 관리의 필요성
-// -> console / mobile => 메모리가 늘 부족함.
-// -> 온라인 게임 => 4바이트 * 1만명 같은 대용량 패킷 처리.
+// ex) -3.375 라는 값을 저장
+// 1) 2진수 변환 = (3) + (0.375) = 0b11 + 0b0.011 = 0b11.011
+// 0.375 = 0.5 * 0 + 0.25 * 1 + 0.125 * 1 = 0b0.011
+// 
+// 2) 정규화 0b1.1011 * 2^1
+// 1(부호) 1(지수) 1011(유효숫자)
+// 단, 지수는 unsigned byte라고 가정하고 숫자+127을 만들어준다.
+// 예상 결과 : 0b 1(부호) 10000000(지수) 1011000'0000'0000'0000
 
+// * 프로그래밍 할 때 부동소수점은 항상 '근사값' 이라는 것을 기억하는것이 가장 중요
+// 1/3 = 0.333333333333333333333333333333
+// 특히 숫자가 커질 수록 오차 범위도 매우 커짐
+// 실수 2개를 == 으로 비교하는 것은 지양
 
 int main()
 {
-    // 정수 overflow
-    b = 32767;
-    b = b + 1;
-    cout << b << endl; // -32768
-
-    // 정수 underflow
-    ub = 0;
-    ub = ub - 1;
-    cout << ub << endl;
-
-    //cout << "체력이 " << hp << " 남았습니다.";
+	cout << attackSpeed << endl;
 }
