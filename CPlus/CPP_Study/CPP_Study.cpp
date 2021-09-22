@@ -3,54 +3,38 @@ using namespace std;
 
 unsigned char flag;	// 부호를 없애야 >> 를 하더라도 부호비트가 같아지지 않음
 
+// 한 번 정해지면 절대 바뀌지 않을 값들
+// Constant 의 약자인 const 를 붙임
+// const는 초기값을 반드시 지정해주어야 함.
+
+// const도 바뀌지 않는 읽기전용이니까 .rodata?
+// 사실 C++ 표준에서 꼭 그렇게 하라는 말이 없음.
+// => 컴파일러 (VS) 가 결정한다.
+// => 해당 예제에서는 메모리에 저장시키지 않음. 대신 컴파일러가 상수(0~3) 그 자체로 바꿔치기하여 사용함.
+const int AIR = 0;
+const int STUN = 1;
+const int POLYMORPH = 2;
+const int INVINCIBLE = 3;
+
+// 전역 변수
+// [데이터 영역]
+// .data (초기값이 있는 데이터)
+int a = 2;
+
+// .bss (초기값이 없는 데이터)
+int b;
+
+// .rodata (readonly / 읽기 전용 데이터)
+const char* msg = "Hello World";
+
 int main()
 {
-#pragma region 비트 연산
-	// 언제 필요한가?
-	// 비트 단위의 조작이 필요 할 때,
+	// [스택 영역]
+	int c = 3;
 
-	// ~ bitwise NOT
-	// 단일 숫자의 모든 비트를 뒤집는다
-
-	// & bitwise AND
-	// 두 숫자의 모든 비트를 AND 연산 한다
-
-	// | bitwise OR
-	// 두 숫자의 모든 비트를 OR 연산 한다
-
-	// ^ bitwise XOR
-	// 두 숫자의 모든 비트를 XOR 연산 한다
-	// (암호학에서 유용하게 사용)
-
-	// << 비트 좌측 이동
-	// 비트열을 N만큼 왼쪽 으로 이동
-	// 이동하며 범위가 넘어서는 비트는 버린다. (새로 생성되는 비트는 0)
-	// *2를 할 때, 자주 보임 (컴파일러가 자주 사용하는 방식)
-
-	// >> 비트 우측 이동
-	// 비트열을 N만큼 오른쪽 으로 이동
-	// 이동하며 범위가 넘어서는 비트는 버린다.
-	// (*)왼쪽에서 새로 생성되는 비트는 그때그때 다름
-	// => 만약 부호 비트가 존재 할 시, 부호비트를 따라감. (부호있는 정수라면 이 부분을 유의)
-	// => 부호가 없다면 0이라고 생각하면 됨.
-
-	// EX)
-	// 0b0000 [무적][변이][스턴][공중부양]
-
-	// 무적 상태로 만든다.
-	flag = (1 << 3);	// 8
-
-	// 변이 상태를 추가한다. (무적 + 변이)
-	flag |= (1 << 2);
-
-	// 무적인지 확인하고 싶다.
-	// bitmask
-	bool invincible = ((flag & (1 << 3)) != 0);
-
-	// 무적이거나 스턴상태인지 확인하고 싶다.
-	bool mask = (1 << 3) | (1 << 1);
-	bool stunAndInvincible = ((flag & 0b1010) != 0);
-
-#pragma endregion
-
+	// 이놈들은 메모리 스택영역에 만들어짐.
+	const int AIR_S = 0;
+	const int STUN_S = 1;
+	const int POLYMORPH_S = 2;
+	const int INVINCIBLE_S = 3;
 }
