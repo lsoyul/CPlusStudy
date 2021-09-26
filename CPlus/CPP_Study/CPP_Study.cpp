@@ -1,40 +1,52 @@
 ﻿#include <iostream>
 using namespace std;
 
-unsigned char flag;	// 부호를 없애야 >> 를 하더라도 부호비트가 같아지지 않음
+// 포인터 연산
 
-// 한 번 정해지면 절대 바뀌지 않을 값들
-// Constant 의 약자인 const 를 붙임
-// const는 초기값을 반드시 지정해주어야 함.
+// 1) 주소 연산자 (&)
+// 2) 산술 연산자
+// 3) 간접 연산자
+// 4) 간접 멤버 연산자
 
-// const도 바뀌지 않는 읽기전용이니까 .rodata?
-// 사실 C++ 표준에서 꼭 그렇게 하라는 말이 없음.
-// => 컴파일러 (VS) 가 결정한다.
-// => 해당 예제에서는 메모리에 저장시키지 않음. 대신 컴파일러가 상수(0~3) 그 자체로 바꿔치기하여 사용함.
-const int AIR = 0;
-const int STUN = 1;
-const int POLYMORPH = 2;
-const int INVINCIBLE = 3;
-
-// 전역 변수
-// [데이터 영역]
-// .data (초기값이 있는 데이터)
-int a = 2;
-
-// .bss (초기값이 없는 데이터)
-int b;
-
-// .rodata (readonly / 읽기 전용 데이터)
-const char* msg = "Hello World";
+struct Player
+{					// memory offset
+	int hp;			// +0
+	int damage;		// +4
+};
 
 int main()
 {
-	// [스택 영역]
-	int c = 3;
+	int number = 1;
 
-	// 이놈들은 메모리 스택영역에 만들어짐.
-	const int AIR_S = 0;
-	const int STUN_S = 1;
-	const int POLYMORPH_S = 2;
-	const int INVINCIBLE_S = 3;
+	// 1) 주소 연산자 (&)
+	// - 해당 변수의 주소를 알려주세요
+	// - 정확하게는 
+	// 해당 타입의 포인터형으로 변환해주는 과정까지 포함됨 TYPE* 반환
+
+	int* pointer = &number;
+
+	// 2) 산술 연산자 (+ -)
+	number += 1;	// 1 증가
+	pointer += 1;	// 4 증가 (한번에 TYPE의 크기만큼을 이동함)
+					// -> 다음 바구니로 이동해라 의미
+
+	// 3) 간접 연산자 (*)
+	// - 해당 주소로 이동
+	*pointer = 3;
+
+	Player player;
+	player.hp = 100;		
+	player.damage = 10;		
+
+	Player* playerPtr = &player;
+
+	(*playerPtr).hp = 200;
+	(*playerPtr).damage = 200;
+
+	// 4) 간접 멤버 연산자 (->)
+	// * 간접연산자는 포탈을 타고 해당 주소로 직접 이동한다는 의미
+	// . 구조체의 특정 멤버를 다룰 때 사용 (어셈블리에서는 단순히 . 사실상 offset을 기준으로 한 덧셈)
+	// -> 는 * 와 . 한번에 실행하는 개념
+	playerPtr->hp = 200;
+	playerPtr->damage = 200;
 }
