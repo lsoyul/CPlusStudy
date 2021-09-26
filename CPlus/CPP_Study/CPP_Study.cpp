@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 using namespace std;
 
+// 참조 전달
 
 struct StatInfo
 {
@@ -9,57 +10,47 @@ struct StatInfo
 	int defence;	// +8
 };
 
-void EnterLobby();
-StatInfo CreatePlayer();
-void CreateMonster(StatInfo* info);
+// StatInfo 구조체가 1000Bytes 짜리 대형 구조체라면?
+// - (값 전달) StatInfo 로 넘기면 1000 bytes가 복사 됨
+// - (주소 전달) StatInfo* 로 넘기는 8 bytes
+// - (참조 전달) ?
 
 int main()
 {
-	EnterLobby();
+	StatInfo player;
+	player.attack = 1;
+	player.hp = 2;
+	player.defence = 3;
+
+	int number = 2;
+	
+	int* pointer = &number;
+	*pointer = 3;
+
+	// (참조 전달)
+	// 로우레벨(어셈블리) 관점에서 실제 작동방식은 int*와 똑같음
+	// 실제로 실행해보면 포인터와 100% 똑같다.
+	int& reference = number;
+
+	// C++ 관점에서는 number라는 바구니에 또 다른 이름을 부여한 것
+	// number라는 바구니에 reference라는 다른 이름을 지어준다.
+	// 앞으로 reference 바구니에 뭘 꺼내거나 넣으면,
+	// 실제 number 바구니(진짜) 에 그 값을 꺼내거나 넣게 됨.
+	reference = 3;
+
+	// 그러면, 귀찮게 또 다른 이름을 짓는 이유는?
+	// 그냥 number = 3과 똑같은데..
+	// but, 참조 전달 방식의 표현상 편리함 때문!
+	ReferenceByRefer(player);
 
 	return 0;
 }
 
-void EnterLobby()
+// * 참조 전달 방식
+// 값 전달처럼 편리하게 사용하고
+// 주소 전달처럼 주소값내의 데이터를 수정 할 수 있도록 함
+// 일석이조의 방식
+void ReferenceByRefer(StatInfo& refer)
 {
-	cout << "로비에 입장했습니다." << endl;
-
-	StatInfo player;
-	player.hp = 0xbbbbbbbb;
-	player.attack = 0xbbbbbbbb;
-	player.defence = 0xbbbbbbbb;
-	player = CreatePlayer();	
-	// 1. CreatePlayer 함수 -> 스택 내 플레이어 정보 생성
-	// 2. 리턴형에 맞춘 임시 데이터 복사 저장
-	// 3. 임시 데이터를 다시 player에 복사 저장
-	// => 성능적 부하가 큼.
-
-
-	StatInfo monster;
-	monster.hp = 0xbbbbbbbb;
-	monster.attack = 0xbbbbbbbb;
-	monster.defence = 0xbbbbbbbb;
-	CreateMonster(&monster);
-}
-
-StatInfo CreatePlayer()
-{
-	StatInfo ret;
-
-	cout << "플레이어 생성" << endl;
-
-	ret.hp = 100;
-	ret.attack = 10;
-	ret.defence = 2;
-
-	return ret;
-}
-
-void CreateMonster(StatInfo* info)
-{
-	cout << "몬스터 생성" << endl;
-
-	info->hp = 40;
-	info->attack = 8;
-	info->defence = 1;
+	refer.attack = 3;
 }
