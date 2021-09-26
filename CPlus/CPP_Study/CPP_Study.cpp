@@ -1,113 +1,98 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 포인터 vs 참조
-
-#define OUT
+// 배열
 
 struct StatInfo
 {
-	int hp;			// +0
-	int attack;		// +4
-	int defence;	// +8
+	int hp = 0xAAAAAAAA;
+	int attack = 0xBBBBBBBB;
+	int defence = 0xDDDDDDDD;
 };
-
 
 int main()
 {
-	StatInfo player;
-	player.attack = 1;
-	player.hp = 2;
-	player.defence = 3;
-
-
-	// 포인터 vs 참조 세기의 대결
-	// - 성능 : 똑같음
-	// - 편의성 : 참조 승!
+	// TYPE 이름[갯수];
 	
-	// 1) 편의성 관련
-	// 편의성이 좋다는게 꼭 장점만이 아니다.
-	// 포인터는 주소를 넘기므로 확실하게 원본을 넘긴다는 힌트를 줄 수 있음.
-	// 반면, 참조 전달은 자연스럽게 모르고 지나칠 수 있음.
-	// ex) ByRefer(player) => 값 전달처럼 보일 수 있다.
-	// ex) 마음대로 고친다면? const를 사용해서 고치지 못하도록 제한 가능. (읽기 전용)
+	// 배열의 크기는 상수여야 한다. (VS 컴파일러 기준)
+	const int monsterCount = 10;
+	StatInfo monsters[monsterCount];
 
-	// 참고로 포인터도 const 사용 가능
-	// * 기준으로 앞, 뒤 붙이는 위치에 따라 의미가 달라짐.
+	// 여태껏 변수들의 [이름]은 바구니의 이름이었음.
+	int a = 10;
+	a = 3;
+	int b = a;
 
-	// 2) 초기화 여부
-	// 참조 타입은 바구니의 2번째 이름 (별칭)
-	// -> 참조하는 대상이 없으면 안됨.
-	// -> StatInfo& reference;  와 같은 경우 컴파일 에러
-	// 반면 포인터는 어떠한 주소 라는 의미
-	// -> 대상이 실제 존재하지 않을 수 있음.
-	// 포인터에서 '없다'는 의미?  nullptr
-	// 
-	StatInfo* pointer = nullptr;
-	pointer = &player;
+	// 그런데 배열은 [이름]이 조금 다르게 동작한다.
+	StatInfo players[10];
+	//players = monsters;
 
+	// 그러면 배열의 [이름]이란?
+	// 배열의 이름은 곧 배열의 시작 주소이다.
+	// 정확하게는 시작 위치를 가리키는 TYPE* 포인터
+	auto WhoAmI = monsters;
 
-	ByRefer(player);
-	ByPointer(pointer);
+	// StatInfo[ ] StatInfo[ ] StatInfo[ ] StatInfo[ ] ...
+	StatInfo* monster_0 = monsters;
+	monster_0->hp = 100;
+	monster_0->attack = 10;
+	monster_0->defence = 1;
 
+	// 포인터의 덧셈 -> StatInfo 크기만큼 이동해라
+	StatInfo* monster_1 = monsters + 1;
+	monster_1->hp = 200;
+	monster_1->attack = 20;
+	monster_1->defence = 2;
 
-	// 결론은?
-	//  정해진 답은 없다.
-	// ex) 구글에서 만든 오픈소스들을 보면 거의 무조건 포인터 사용
-	// ex) 언리얼 엔진에선 reference도 애용
+	// 포인터와 참조는 자유자재로 변환 가능하다.
+	StatInfo& monster_2 = *(monsters + 2);
+	monster_2.hp = 300;
+	monster_2.attack = 30;
+	monster_2.defence = 3;
 
-	// 개인적으로
-	// - 없는 경우도 고려해야 한다면 pointer 사용 (null 체크 필수)
-	// - 바뀌지 않고 읽는 용도 (readonly)만 사용한다면 const ref&
-	// 그 외, 일반적으로 ref (명시적으로 호출 할 때 OUT을 붙인다.) => 가독성 측면 (언리얼 엔진에서 사용하는 방식)
-	// -- 단, 다른 사람이 pointer를 만들어 놓은 걸 이어서 만든다면, 계속 pointer 사용 (섞어서 사용하지는 않는다.)
+	// [주의] 이건 완전 다른 의미이다.
+	StatInfo temp = *(monsters + 2);	// 내용물의 StatInfo 값 을 temp에 복사
+	temp.hp = 300;
+	temp.attack = 30;
+	temp.defence = 3;
 
-	ChangeInfo(OUT player);
+	// 이를 조금 더 자동화 한다.
+	for (int i = 0; i < monsterCount; i++)
+	{
+		StatInfo& monster = *(monsters + i);	
+		monster.hp = 100 * (i + 1);
+		monster.attack = 10 * (i + 1);
+		monster.defence = (i + 1);
+	}
 
+	// 근데 *(monsters + i) 너무 불편하고 가독성이 떨어진다..
+	// 인덱스!
+	// 배열은 0부터 시작, N번째 인덱스에 해당하는 데이터에 접근하려면 배열이름[N]
+	// *(monsters + i) ==> monsters[i]
 
-	// BONUS) 포인터로 사용하던걸 참조로 넘겨주려면?
-	// pointer[주소(&info)]   info[데이터]
-	ByRefer(*pointer);
+	for (int i = 0; i < monsterCount; i++)
+	{
+		monsters[i].hp = 100 * (i + 1);
+		monsters[i].attack = 10 * (i + 1);
+		monsters[i].defence = (i + 1);
+	}
 
-	// BONUS) 참조로 사용하던걸 포인터로 넘겨주려면?
-	// pointer[주소(&info)]   ref, info[데이터]
-	StatInfo& ref = player;	
-	ByPointer(&ref);
+	// 배열 초기화 문법 몇가지
+	int numbers[5] = {};						// 0으로 초기화 (어셈에서 보면 그냥 모든 값들을 여러번 0으로 복사)
+	int numbers1[10] = { 1, 2, 3, 4, 5 };		// 설정한 값 뒤 부터는 0으로 초기화
+	int numbers2[] = { 1,2,3,4,5,6,3,1,2 };		// 데이터 갯수만큼의 크기에 해당하는 배열로 만들어 준다.
 
+	char helloStr[] = { 'H', 'e', 'l', 'l', 'o', '\0'};
+	cout << helloStr << endl;
+
+	// 배열 요약:
+	// 1) 선언한다.
+	int arr[10] = {};
+
+	// 2) 인덱스로 접근해서 사용
+	arr[1] = 1;
+	cout << arr[1] << endl;
+	
 	return 0;
 }
 
-
-void ChangeInfo(OUT StatInfo& info)
-{
-	info.attack = 3;
-}
-
-// * 참조 전달 방식
-// 값 전달처럼 편리하게 사용하고
-// 주소 전달처럼 주소값내의 데이터를 수정 할 수 있도록 함
-// 일석이조의 방식
-void ByRefer(const StatInfo& refer)
-{
-	//refer.attack = 3;
-	cout << refer.attack << endl;
-}
-
-StatInfo globalInfo;
-
-void ByPointer(const StatInfo* ptr)
-{
-	//ptr->attack = 3;
-
-	// const를
-	// 1. 별 앞에 붙인다면? const StatInfo*
-	// ptr이 가리키고 있는 내용물을 바꿀 수 없다.
-
-	// 2. 별 뒤에 붙인다면? StatInfo* const
-	// ptr라는 바구니의 내용물(주소)을 바꿀 수 없다.
-	// ptr의 주소값은 고정이다!
-
-
-	ptr = &globalInfo;
-	//ptr->attack = 10000;
-}
