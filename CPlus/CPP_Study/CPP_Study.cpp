@@ -1,64 +1,62 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 다중 포인터 (이중 포인터)
+// 포인터 정리
 
-void SetNumber(int* a)
+int* TestPointer()
 {
-	*a = 1;
+	int a = 1;
+	return &a;
 }
 
-void SetMessage(const char* a)
+void TestWrong(int* ptr)
 {
-	a = "Bye";
-}
-
-void SetMessage(const char** a)
-{
-	*a = "Bye";
-}
-
-void SetMessage2(const char*& a)
-{
-	a = "WOW";
+	int a[100] = {};
+	a[99] = 0xAAAAAAAA;
+	*ptr = 0x12341234;
 }
 
 int main()
 {
-	int a = 0;
-	SetNumber(&a);
-	
+	// 2차원 배열과 다중포인터가 같다??
 
-	// .rodata Hello주소 - [H][e][l][l]...[\0]
-	// .rodata Bye주소 - [B][y][e][\0]
-	// 
-	// msg - [ 주소 ] << 8바이트
-	const char* msg = "Hello World";
+	// [1][2][3][4]
+	int arr[2][2] = { {1,2},{3,4} };
 
-	// [매개변수][RET주소][지역변수(msg(Hello주소))] => SetMessage[매개변수(a(Hello주소))][RET주소][지역변수]
-	SetMessage(msg);
-	//cout << msg << endl;
+	// 00000001 [] << 4바이트 => error
+	// 주소1 [00000001]
+	// pp [주소1]
+	int** pp = (int**)arr;	// ?
+
+	//cout << (**pp) << endl;
+
+	// TYPE name[갯수]
+
+	// [1][2] [3][4]
+	// [ 주소 ]
+	int (*p2)[2] = arr;
+	cout << (*p2)[0] << endl;
+	cout << (*p2)[1] << endl;
+	cout << (*(p2 + 1))[0] << endl;
+	cout << (*(p2 + 1))[1] << endl;
+
+	cout << p2[0][0] << endl;
+	cout << p2[0][1] << endl;
+	cout << p2[1][0] << endl;
+	cout << p2[1][1] << endl;
 
 
-	// .rodata Hello주소 - [H][e][l][l]...[\0]
-	// msg [ Hello주소 ] << 8바이트
-	// pp [ &msg ] << 8바이트
-	const char** pp = &msg;
+	// [매개변수][RET][지역변수] -TestPointer [매개변수][RET][지역변수]
+	// [매개변수][RET][지역변수]
+	// TestPointer가 리턴되면 스택 프레임에서 정리된다.
+	int* pointer = TestPointer();
 
-	SetMessage(&msg);
+	TestWrong(pointer);
+	*pointer = 123;
 
-	cout << msg << endl;
+	cout << *pointer << endl;
 
-
-	// 다중포인터.. 혼동스럽다?
-	// 그냥 양파까기라고 생각하자.
-	// *을 하나씩 까면서 타고 간다고 생각
-	const char** pp2;
-
-	// 참조전달 버전
-	SetMessage2(msg);
-	cout << msg << endl;
-
+	// 스택프레임과 관련된 데이터의 주소값을 외부로 넘겨주지 않도록 하자!
 
 	return 0;
 }
