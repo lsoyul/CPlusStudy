@@ -1,52 +1,65 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 포인터 연산
 
-// 1) 주소 연산자 (&)
-// 2) 산술 연산자
-// 3) 간접 연산자
-// 4) 간접 멤버 연산자
-
-struct Player
-{					// memory offset
+struct StatInfo
+{
 	int hp;			// +0
-	int damage;		// +4
+	int attack;		// +4
+	int defence;	// +8
 };
+
+void EnterLobby();
+StatInfo CreatePlayer();
+void CreateMonster(StatInfo* info);
 
 int main()
 {
-	int number = 1;
+	EnterLobby();
 
-	// 1) 주소 연산자 (&)
-	// - 해당 변수의 주소를 알려주세요
-	// - 정확하게는 
-	// 해당 타입의 포인터형으로 변환해주는 과정까지 포함됨 TYPE* 반환
+	return 0;
+}
 
-	int* pointer = &number;
+void EnterLobby()
+{
+	cout << "로비에 입장했습니다." << endl;
 
-	// 2) 산술 연산자 (+ -)
-	number += 1;	// 1 증가
-	pointer += 1;	// 4 증가 (한번에 TYPE의 크기만큼을 이동함)
-					// -> 다음 바구니로 이동해라 의미
+	StatInfo player;
+	player.hp = 0xbbbbbbbb;
+	player.attack = 0xbbbbbbbb;
+	player.defence = 0xbbbbbbbb;
+	player = CreatePlayer();	
+	// 1. CreatePlayer 함수 -> 스택 내 플레이어 정보 생성
+	// 2. 리턴형에 맞춘 임시 데이터 복사 저장
+	// 3. 임시 데이터를 다시 player에 복사 저장
+	// => 성능적 부하가 큼.
 
-	// 3) 간접 연산자 (*)
-	// - 해당 주소로 이동
-	*pointer = 3;
 
-	Player player;
-	player.hp = 100;		
-	player.damage = 10;		
+	StatInfo monster;
+	monster.hp = 0xbbbbbbbb;
+	monster.attack = 0xbbbbbbbb;
+	monster.defence = 0xbbbbbbbb;
+	CreateMonster(&monster);
+}
 
-	Player* playerPtr = &player;
+StatInfo CreatePlayer()
+{
+	StatInfo ret;
 
-	(*playerPtr).hp = 200;
-	(*playerPtr).damage = 200;
+	cout << "플레이어 생성" << endl;
 
-	// 4) 간접 멤버 연산자 (->)
-	// * 간접연산자는 포탈을 타고 해당 주소로 직접 이동한다는 의미
-	// . 구조체의 특정 멤버를 다룰 때 사용 (어셈블리에서는 단순히 . 사실상 offset을 기준으로 한 덧셈)
-	// -> 는 * 와 . 한번에 실행하는 개념
-	playerPtr->hp = 200;
-	playerPtr->damage = 200;
+	ret.hp = 100;
+	ret.attack = 10;
+	ret.defence = 2;
+
+	return ret;
+}
+
+void CreateMonster(StatInfo* info)
+{
+	cout << "몬스터 생성" << endl;
+
+	info->hp = 40;
+	info->attack = 8;
+	info->defence = 1;
 }
