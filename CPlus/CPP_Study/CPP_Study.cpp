@@ -1,57 +1,115 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 포인터 정리
+// 달팽이 그리기
+// 5
+// 00 01 02 03 04
+// 15 16 17 18 05
+// 14 23 24 19 06
+// 13 22 21 20 07
+// 12 11 10 09 08
 
-// 1) 문자열 길이 반환
-int StrLen(const char* str)
+// 4 4 4 3 3 2 2 1 1
+
+// 4
+// 00 01 02 03
+// 11 12 13 04
+// 10 15 14 05
+// 09 08 07 06
+
+// 3 3 3 2 2 1 1
+
+enum DIRECTION
 {
-	// str이라는 문자열의 길이를 반환
-	char t = *str;
-	int length = 0;
+	UP = 0,
+	DOWN = 1,
+	LEFT = 2,
+	RIGHT = 3,
+};
 
-	while (t != '\0')
+
+const int MAX = 100;
+
+int map[MAX][MAX] = {};
+
+void PrintMap(int number)
+{
+	for (int i = 0; i < number; i++)
 	{
-		t = *(++str);
-		length++;
+		for (int j = 0; j < number; j++)
+		{
+			if (map[i][j] < 10) cout << "0";
+			cout << map[i][j] << " ";
+		}
+		cout << endl;
 	}
-
-	return length;
 }
 
-// 2) 문자열 복사
-char* StrCopy(char* dest, const char* source)
-{
-	int cur = 0;
 
-	while (source[cur] != '\0')
+void SetMap(int number)
+{
+	int direction = DIRECTION::RIGHT;
+
+	int curRow = 0;
+	int curCol = 0;
+
+	int countNum = number - 1;
+	int changeCountNumPivot = 3;
+
+	int targetNum = 0;
+
+	while (countNum > 0)
 	{
-		dest[cur] = source[cur];
-		cur++;
+		switch (direction)
+		{
+		case DIRECTION::UP:
+			for (int i = 0; i < countNum; i++)
+			{
+				map[--curRow][curCol] = ++targetNum;
+			}
+			direction = DIRECTION::RIGHT;
+			break;
+		case DIRECTION::DOWN:
+			for (int i = 0; i < countNum; i++)
+			{
+				map[++curRow][curCol] = ++targetNum;
+			}
+			direction = DIRECTION::LEFT;
+			break;
+		case DIRECTION::LEFT:
+			for (int i = 0; i < countNum; i++)
+			{
+				map[curRow][--curCol] = ++targetNum;
+			}
+			direction = DIRECTION::UP;
+			break;
+		case DIRECTION::RIGHT:
+			for (int i = 0; i < countNum; i++)
+			{
+				map[curRow][++curCol] = ++targetNum;
+			}
+			direction = DIRECTION::DOWN;
+			break;
+		}
+
+		changeCountNumPivot--;
+		if (changeCountNumPivot <= 0)
+		{
+			changeCountNumPivot = 2;
+			countNum--;
+		}
 	}
 
-	dest[cur] = '\0';
-
-	return dest;
 }
-
 
 int main()
 {
-	const int BUF_SIZE = 100;
+	int num = 0;
+	cin >> num;
+	cout << endl;
 
-	char a[BUF_SIZE] = "Hello";
-	char b[BUF_SIZE] = {};
-
-	//int len = sizeof(a);	// sizeof == a버퍼의 크기 == 100
-	//cout << len;
-
-	int len = StrLen(a);	// strlen == 실제 문자열의 크기
-	cout << a << endl;
-
-	cout << b << endl;
-	StrCopy(b, a);
-	cout << b;
+	SetMap(num);
+	PrintMap(num);
 
 	return 0;
 }
