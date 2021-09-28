@@ -1,115 +1,75 @@
 ﻿#include <iostream>
+
 using namespace std;
 
-// 달팽이 그리기
-// 5
-// 00 01 02 03 04
-// 15 16 17 18 05
-// 14 23 24 19 06
-// 13 22 21 20 07
-// 12 11 10 09 08
+// 절차(procedural)지향 프로그래밍
+// - procedure = 함수
 
-// 4 4 4 3 3 2 2 1 1
 
-// 4
-// 00 01 02 03
-// 11 12 13 04
-// 10 15 14 05
-// 09 08 07 06
+// 객체지향 프로그래밍
 
-// 3 3 3 2 2 1 1
+// 데이터 + 가공(로직, 동작)
 
-enum DIRECTION
+// class는 일종의 설계도
+class Knight
 {
-	UP = 0,
-	DOWN = 1,
-	LEFT = 2,
-	RIGHT = 3,
+public:
+	void Move(int y, int x);
+	void Attack();
+
+	void Die()
+	{
+		hp = 0;
+		cout << "Die" << endl;
+	}
+
+public:
+	int hp;
+	int attack;
+	int posY;
+	int posX;
 };
 
-
-const int MAX = 100;
-
-int map[MAX][MAX] = {};
-
-void PrintMap(int number)
+void Knight::Move(int y, int x)
 {
-	for (int i = 0; i < number; i++)
-	{
-		for (int j = 0; j < number; j++)
-		{
-			if (map[i][j] < 10) cout << "0";
-			cout << map[i][j] << " ";
-		}
-		cout << endl;
-	}
+	posY = y;
+	posX = x;
+	cout << "Move" << endl;
 }
 
-
-void SetMap(int number)
+void Move(Knight* knight, int y, int x)
 {
-	int direction = DIRECTION::RIGHT;
-
-	int curRow = 0;
-	int curCol = 0;
-
-	int countNum = number - 1;
-	int changeCountNumPivot = 3;
-
-	int targetNum = 0;
-
-	while (countNum > 0)
-	{
-		switch (direction)
-		{
-		case DIRECTION::UP:
-			for (int i = 0; i < countNum; i++)
-			{
-				map[--curRow][curCol] = ++targetNum;
-			}
-			direction = DIRECTION::RIGHT;
-			break;
-		case DIRECTION::DOWN:
-			for (int i = 0; i < countNum; i++)
-			{
-				map[++curRow][curCol] = ++targetNum;
-			}
-			direction = DIRECTION::LEFT;
-			break;
-		case DIRECTION::LEFT:
-			for (int i = 0; i < countNum; i++)
-			{
-				map[curRow][--curCol] = ++targetNum;
-			}
-			direction = DIRECTION::UP;
-			break;
-		case DIRECTION::RIGHT:
-			for (int i = 0; i < countNum; i++)
-			{
-				map[curRow][++curCol] = ++targetNum;
-			}
-			direction = DIRECTION::DOWN;
-			break;
-		}
-
-		changeCountNumPivot--;
-		if (changeCountNumPivot <= 0)
-		{
-			changeCountNumPivot = 2;
-			countNum--;
-		}
-	}
-
+	knight->posY = y;
+	knight->posX = x;
 }
+
+void Knight::Attack()
+{
+	cout << "Attack : " << attack << endl;
+}
+
+struct A {
+	int a;
+};
 
 int main()
 {
-	int num = 0;
-	cin >> num;
-	cout << endl;
 
-	SetMap(num);
-	PrintMap(num);
+	Knight k1;
+	k1.hp = 100;
+	k1.attack = 10;
+	k1.posY = 0;
+	k1.posX = 0;
+
+	Knight k2;
+	k2.hp = 80;
+	k2.attack = 5;
+	k2.posY = 1;
+	k2.posX = 1;
+
+	k1.Move(2, 2);
+	k1.Attack();
+	k1.Die();
 
 	return 0;
 }
