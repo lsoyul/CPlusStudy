@@ -1,74 +1,111 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 객체지향 마무리
+// 동적 할당
 
-// 1) struct vs class
+// 메모리 구조 복습!
+// - 실행할 코드가 저장되는 영역 -> 코드 영역
+// - 전역(global)/정적(static) 변수 -> 데이터 영역
+// - 지역 변수 / 매개 변수 -> 스택 영역
+// - 동적 할당 -> 힙 영역
 
-// C++에서는 struct나 class나 종이 한 장 차이이다.
-// struct는 기본 접근 지정자가 public이고, class는 private 이다.
-// 왜 이렇게 했을까? C++은 C언어에서 파생되어 발전했기 때문에? (아마도)
-// -> struct는 그냥 구조체 (데이터 묶음)을 표현하는 용도로
-// -> class는 객체 지향 프로그래밍의 특징을 나타내는 용도
+// 지금까지 데이터 영역 / 스택 영역을 이용해서
+// 이런 저런 프로그램들을 잘 만들어 왔는데,
+// 굳이 새로운 영역이 필요한가?
 
-struct TestStruct
-{// public:
-	int _a;
-	int _b;
-};
+// 실제 상황)
+// - MMORPG 동접 1명-5만명, 몬스터 100-500만마리
+// - 몬스터 생성 이벤트 -> 5분동안 몬스터가 10배 많이 나옴
 
-class TestClass
-{// private:
-	int _a;
-	int _b;
-};
+// - 스택 영역
+// 함수가 끝나면 같이 정리되는 불안정한 메모리
+// 잠시 함수에 매개변수를 넘긴다거나, 하는 용도로 OK
+// - 데이터 영역
+// 프로그램이 실행되는 도중에는 '무조건' 사용되는 영역
+
+// 희망사항)
+// - 필요할 때만 사용하고, 필요없으면 반납 할 수 있는!
+// - 그러면서도 (스택과는 다르게) 우리가 생성/소멸 시점을 관리 할 수 있는!
+// -> Heap 영역
+// 동적할당과 연관된 함수/연산자 : malloc/free, new/delete, new[]/delete[]
+
+// malloc
+// - 할당할 메모리 크기를 건내준다.
+// - 메모리 할당 후 시작 주소를 가리키는 포인터를 반환해준다. (메모리 부족 NULL)
+
+// free
+// - malloc (혹은 기타 calloc, realloc 등의 사촌) 을 통해 할당된 영역을 해제
+// - 힙 관리자가 할당/미할당 여부를 구분해서 관리
+// - 메모리 할당 시, 헤더개념으로 내가 해제 할 크기를 기입해두는데, 해당 기입정보를 활용하여 메모리를 해제
 
 
-// 2) static 변수, static 함수 (static = 정적 = 고정된)
 
-class Marine
+class Monster
 {
 public:
-	// 특정 마린 객체에 종속적
 	int _hp;
-
-	void TakeDamage(int damage)
-	{
-		_hp -= damage;
-	}
-
-	static void SetAttack()
-	{
-		s_attack = 100;
-	}
-
-	// 특정 마린 객체와 무관
-	// 마린이라는 '클래스' 자체와 연관된 클래스 공통적인 값
-	static int s_attack;	// 설계상으로만 존재
+	int _x;
+	int _y;
 };
 
-// static 변수는 어떤 메모리를 사용?
-// 초기화를 하면 .data 영역
-// 초기화 안하면 .bss 영역
-// -> 어쨌든 메모리의 DATA 영역에 올라감
-
-int Marine::s_attack = 0;
+//Monster monster[500 * 10000];
 
 int main()
 {
-	Marine m1;
-	m1._hp = 40;
-	//m1.s_attack = 6;
+	// 유저 영역	[메모장] [LOL] [곰플레이어] . . .
+	// -----------------------------------------
+	// 커널 영역 (Windows 등의 핵심 코드)
 
-	Marine m2;
-	m2._hp = 40;
-	//m2.s_attack = 6;
+	// <어떤 프로그램내 동적할당의 과정>
+	// 유저 영역 ) 운영체제에서 제공하는 API 호출
+	// 커널 영역 ) 메모리 할당해서 건내줌
+	// 유저 영역 ) ㄳㄳ 잘 쓸게요~
 
-	// 마린 공격력 업그레이드 완료! (Academy에서 업그레이드 끝)
-	Marine::s_attack = 6;
-	Marine::SetAttack();
-	//m1.s_attack = 7;
-	//m2.s_attack = 7;
+
+	// [                                        ]
+	// C++ 에서는 기본적으로 CRT(C런타임 라이브러리)의 [힙 관리자]를 통해 힙 영역 사용
+	// 단, 정말 원한다면 우리가 직접 API를 통해 힙을 생성하고, 관리 할 수도 있음 (MMORPG 서버 메모리 풀링)
+//#ifdef _WIN64
+//	typedef unsigned __int64 size_t;
+//#else
+//	typedef unsigned int     size_t;
+//#endif
+
+	// 잠깐~! void* ?? 무엇일까?
+	// *가 있으니까 포인터는 포인터 (주소를 담는 바구니) => OK
+	// 타고 가면 void 아무것도 없다? => NO
+	// 타고 가면 void 뭐가 있는지 모르겠으니까, 너가 적당히 변환해서 사용해라 => OK
+	void* pointer = malloc(sizeof(Monster));
+
+	Monster* m1 = (Monster*)pointer;
+	m1->_hp = 100;
+	m1->_x = 1;
+	m1->_y = 2;
+
+	// Heap Overflow
+	// - 할당된 메모리보다 큰 사이즈의 타입으로 변환시, 
+	// - 유효한 힙 범위를 초과해서 사용하는 문제
+
+	// 만약 free하지 않으면 메모리 누수 발생
+	free(pointer);
+
+	// 안전하게!
+	pointer = nullptr;
+	m1 = nullptr;
+
+	// Double Free
+	// - 이 경우 대부분 그냥 크래시만 나구 끝남
+	//free(pointer);
+
+
+	// Use-After-Free
+	// - C++의 가장 큰 위험성 중 하나!
+	// - 프로그래머 입장 : OMG 망했다!
+	// - 해커 입장 : 심봤다!
+
+	m1->_hp = 100;
+	m1->_x = 1;
+	m1->_y = 2;
 
 	return 0;
 }
