@@ -1,103 +1,97 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 얕은 복사 vs 깊은 복사
+// 캐스팅 (타입 변환)
 
-class Pet
+// 1) static_cast
+// 2) dynamic_cast
+// 3) const_cast
+// 4) reinterpret_cast
+
+class Player
 {
 public:
-	Pet()
-	{
-		cout << "Pet()" << endl;
-	}
-
-	~Pet()
-	{
-		cout << "~Pet()" << endl;
-	}
-
-	Pet(const Pet& pet)
-	{
-		cout << "Pet(const Pet& pet)" << endl;
-	}
-	
-	// 4096 bytes
+	virtual ~Player() { }
 };
 
-class RabbitPet : public Pet
+class Knight : public Player
 {
+public:
 
 };
 
-class Knight
+class Archer : public Player
 {
 public:
-	Knight()
-	{
-		_pet = new Pet();
-	}
 
-	Knight(const Knight& knight)
-	{
-		_hp = knight._hp;
-		//_pet = knight._pet;
-		_pet = new Pet(*(knight._pet));		// 깊은 복사
-	}
-
-	Knight& operator=(const Knight& knight)
-	{
-		_hp = knight._hp;
-		//_pet = knight._pet;
-		_pet = new Pet(*(knight._pet));		// 깊은 복사
-
-		return *this;
-	}
-
-	~Knight()
-	{
-		delete _pet;
-	}
-
-public:
-	int _hp = 100;
-	//Pet _pet;		// 펫은 Knight의 필수요소가 아니기 때문에 단점이 많다.
-	Pet* _pet;
 };
+
+class Dog
+{
+
+};
+
+void PrintName(char* str)
+{
+	cout << str << endl;
+}
+
+void PrintName2(const char* str)
+{
+	cout << str << endl;
+}
 
 int main()
 {
-	Pet* pet = new Pet();
+	// (int) <= 고전 C 스타일
 
-	Knight knight;				// 기본 생성자
-	knight._hp = 200;
-	knight._pet = pet;
+	// * static_cast : 타입 원칙에 비춰 볼 때, 상식적인 캐스팅만 허용해준다.
+	// 1) int <-> float
+	// 2) Player* -> Knight*	(부모->자식) 다운캐스팅 << 단, 안전성은 보장 못함!
+	// => 사용빈도 가장 높음
 
-	Knight knight2 = knight;	// 복사 생성자
-	//Knight knight3(knight);
+	int hp = 100;
+	int maxHp = 200;
+	float ratio = static_cast<float>(hp) / maxHp;
+	cout << ratio << endl;
 
-	Knight knight3;				// 기본 생성자
-	knight3 = knight;			// 복사 대입 연산자
-
-	// [복사 생성자] + [복사 대입 연산자]
-	// 둘 다 안만들어주면 컴파일러가 '암시적'으로 만들어준다.
-
-	// 중간 결론) 컴파일러가 알아서 잘 만들어 준다?
-	// 수고하세요~ 다음 주제로 넘어갈까요? << NO!
+	// 부모->자식 / 자식->부모
+	Player* p = new Archer();
+	Knight* k1 = static_cast<Knight*>(p);
 
 
-	// [얕은 복사 Shallow Copy]
-	// 멤버 데이터를 비트열 단위로 '똑같이' 복사 (메모리 영역 값을 그대로 복사)
-	// 포인터는 주소값 바구니 -> 주소값을 똑같이 복사 -> 동일한 객체를 가리키는 상태가 됨.
+	// * dynamic_cast : 상속 관계에서의 안전한 형 변환
+	// RTTI (RunTime Type Information) 활용	(런타임에 VF 테이블을 보며 내가 어떤 타입인지? 판단)
+	// -> 다형성을 활용하는 방식 (virtual 함수가 최소 한 개는 있어야한다)
+	// - virtual 함수를 최소 하나라도 만들면, 객체의 메모리에 가상 함수 테이블 (vftable) 주소가 기입된다.
+	// - 만약 잘못된 타입으로 캐스팅을 했으면, nullptr 를 반환한다. 
+	// -> 이를 이용해서 맞는 타입으로 캐스팅을 했는지 확인 할 수 있어서 유용하다.
+	Knight* k2 = dynamic_cast<Knight*>(p);	// 런타임 에러
 
-	// Stack : Knight [ hp 0x1000 ] -> Heap 0x1000 Pet[   ]
-	// Stack : Knight [ hp 0x1000 ] -> 
 
-	// [ 깊은 복사 Deep Copy ]
-	// 멤버 데이터가 참조(주소) 값이라면, 데이터를 새로 만들어준다.(원본 객체가 참조하는 대상까지 새로 만들어서 복사)
-	// 포인터는 주소값 바구니 -> 새로운 객체를 생성 -> 상이한 객체를 가리키는 상태가 됨.
-	// Stack : Knight [ hp 0x1000 ] -> Heap 0x1000 Pet[   ]
-	// Stack : Knight [ hp 0x2000 ] -> Heap 0x2000 Pet[   ]
-	// Stack : Knight [ hp 0x3000 ] -> Heap 0x3000 Pet[   ]
+	// * const_cast : const를 붙이거나 떼거나~
+	PrintName((char*)"Rookiss");	// char*를 받는 함수인데, const를 떼줘야 하는 상황..!
+	PrintName(const_cast<char*>("Rookiss"));
+
+	char t[] = "Hello";
+	PrintName2(const_cast<const char*>(t));
+
+
+	// * reinterpret_cast
+	// 가장 위험하고 강력한 형태의 캐스팅
+	// 're-interpret' : 다시-간주하다/생각하다
+	// - 포인터랑 전혀 관계없는 다른 타입으로 변환하고 싶을 때.
+	// - 보통 void* 포인터를 캐스팅 해 줄 때 알맞다.
+	
+	//__int64 address = (__int64)k2;
+	__int64 address = reinterpret_cast<__int64>(k2);
+
+	Dog* dog1 = reinterpret_cast<Dog*>(k2);
+
+	void* p = malloc(1000);
+	//Dog* dog2 = p;
+	Dog* dog = reinterpret_cast<Dog*>(p);
+
 
 	return 0;
 }
