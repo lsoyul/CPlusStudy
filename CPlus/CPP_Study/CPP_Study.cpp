@@ -32,17 +32,43 @@ using namespace std;
 // malloc
 // - 할당할 메모리 크기를 건내준다.
 // - 메모리 할당 후 시작 주소를 가리키는 포인터를 반환해준다. (메모리 부족 NULL)
-
 // free
 // - malloc (혹은 기타 calloc, realloc 등의 사촌) 을 통해 할당된 영역을 해제
 // - 힙 관리자가 할당/미할당 여부를 구분해서 관리
 // - 메모리 할당 시, 헤더개념으로 내가 해제 할 크기를 기입해두는데, 해당 기입정보를 활용하여 메모리를 해제
 
 
+// new / delete
+// - C++에 추가됨
+// - malloc/free 는 함수! new/delete는 연산자(operator)!
+
+// new/delete vs malloc/free
+// - 사용 편의성 -> new/delete 승!
+// - 타입에 상관없이 특정한 크기의 메모리 영역을 할당 받으려면? -> malloc/free 승!
+
+
+// BUT, 둘의 가장 근본적인 중요한 차이는 따로 있음!
+// - new / delete는 (생성타입이 클래스일 경우) 생성자/소멸자를 호출해준다! (객체지향적인 특징)
+
 
 class Monster
 {
 public:
+	Monster()
+	{
+		cout << "Monster()" << endl;
+	}
+	
+	Monster(int hp)
+	{
+		_hp = hp;
+	}
+
+	~Monster()
+	{
+		cout << "~Monster()" << endl;
+	}
+
 	int _hp;
 	int _x;
 	int _y;
@@ -92,21 +118,27 @@ int main()
 	// 안전하게!
 	pointer = nullptr;
 	m1 = nullptr;
+	
 
-	// Double Free
-	// - 이 경우 대부분 그냥 크래시만 나구 끝남
-	//free(pointer);
+	Monster* m2 = new Monster(50);	// malloc과 마찬가지로 메모리 영역에 헤더개념으로 할당메모리 사이즈 기입됨
+	m2->_hp = 200;
+	m2->_x = 2;
+	m2->_y = 3;
+	delete m2;
 
+	Monster* m3 = new Monster[5];
+	m3->_hp = 200;
+	m3->_x = 2;
+	m3->_y = 3;
 
-	// Use-After-Free
-	// - C++의 가장 큰 위험성 중 하나!
-	// - 프로그래머 입장 : OMG 망했다!
-	// - 해커 입장 : 심봤다!
+	Monster* m4 = (m3 + 1);
+	m4->_hp = 300;
+	m4->_x = 2;
+	m4->_y = 5;
 
-	m1->_hp = 100;
-	m1->_x = 1;
-	m1->_y = 2;
-
+	delete[] m3;
+	m4 = nullptr;
+	
 	return 0;
 }
 
