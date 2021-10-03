@@ -1,17 +1,26 @@
 ﻿#include <iostream>
-#include <stdlib.h>		// C++ 공식 헤더
 using namespace std;
-#include "Player.h"		// 우리가 만든 헤더
+
+// 디버깅
+
+void Test2()
+{
+	int b = 0;
+}
+
+void Test1()
+{
+	int a = 0;
+
+	Test2();
+}
+
 
 int main()
 {
-	// 컴파일러 입장
-	// 핵심: Player 는 몇 바이트인가?
-	// int 2개 = 2 * 4 = 8바이트
+	int number = 10;
 
-	Player p1;	// 지역 변수 (스택)
-
-	Player* p2 = new Player();	// 동적 할당
+	Test1();
 
 	return 0;
 }
