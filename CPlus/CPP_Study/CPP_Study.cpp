@@ -1,97 +1,109 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 함수 포인터
+// 함수 객체
+
+void HelloWorld()
+{
+	cout << "Hello World" << endl;
+}
+
+void HelloNumber(int number)
+{
+	cout << "Hello " + number << endl;
+}
 
 class Knight
 {
 public:
-
-	static void HelloKnight()
+	void AddHp(int addHp)
 	{
-
+		_hp += addHp;
 	}
 
-	int GetHp(int, int)
-	{
-		cout << "GetHp()" << endl;
-		return _hp;
-	}
-
-public:
+private:
 	int _hp = 100;
 };
 
-
-// typedef의 진실
-// typedef 왼쪽 오른쪽 -> 오른쪽 (커스텀 타입 정의)
-
-//typedef int NUMBER;
-
-// 정확히는 왼쪽/오른쪽 기준이 아니라,
-// [선언 문법]에서 typedef를 앞에다 붙이는 쪽.
-
-typedef int INTEGER;
-typedef int* POINTER;
-typedef int FUNC(int, int);
-typedef int ARRAY[20];
-
-typedef int (*PFUNC)(int, int);					// 정적/전역 함수 포인터
-
-typedef int (Knight::*PMEMFUNC)(int, int);		// 멤버 함수 포인터
-
-int Test(int a, int b)
+class Functor
 {
-	cout << "Test" << endl;
-	return a + b;
-}
+public:
+
+	// () 기호를 오버로딩
+	void operator() ()
+	{
+		cout << "Functor Test" << endl;
+		cout << _value << endl;
+	}
+
+	bool operator()(int num)
+	{
+		cout << "Functor Test" << endl;
+		_value += num;
+		cout << _value << endl;
+
+		return true;
+	}
+
+private:
+	int _value = 0;
+};
+
+
+class MoveTask
+{
+public:
+	void operator()()
+	{
+		// TODO
+		cout << "해당 좌표로 플레이어 이동" << endl;
+	}
+
+public:
+	int _playerId;
+	int _posX;
+	int _posY;
+};
 
 
 int main()
 {
-	// 함수 포인터
-	// 1) 포인터			*
-	// 2) 변수의 이름	fn
-	// 3) 타입			함수
+	// 함수 객체 (Functor) : 함수처럼 동작하는 객체
+	// 함수 포인터의 단점
 
-	//FUNC t;
-	//t(1, 2);	// 구현부 없는 함수 호출상황이랑 같음
+	// 함수 포인터 선언
 
-	//int (*fn)(int, int);
-	//FUNC* fn;
-	PFUNC fn;
+	void (*pfunc)(void);
 
-	//typedef int(FUNC_TYPE)(int, int);
-	//FUNC_TYPE* fn;
+	// 동작을 넘겨줄 때 유용하다.
+	pfunc = &HelloWorld;
+	(*pfunc)();
 
-	fn = &Test;
-	//fn = Test;	&생략 가능 (C언어 호환성 때문)
+	// 함수 포인터의 단점
+	// 1) 시그니처가 안 맞으면 사용 할 수 없다.
+	// 2) 상태를 가질 수 없다. (State?)
+	//pfunc = HelloNumber;
 
-	fn(1, 2);
+	// 함수 객체?
+	// [함수처럼 동작]하는 객체
+	// () <= 연산자 오버로딩
+	HelloWorld();
 
-	(*fn)(1, 2);
+	Functor functor;
+	functor();
+	bool ret = functor(2);
 
+	// MMO에서 함수 객체를 사용하는 예시
+	// 클라 <-> 서버
+	// 서버 : 클라가 보내준 네트워크 패킷을 받아서 처리
+	// ex) 클라 : 나 (5,0) 좌표로 이동시켜줘!
+	MoveTask task;
+	task._playerId = 100;
+	task._posX = 5;
+	task._posY = 0;
 
-	// 위 문법으로 [전역(global) 함수 / 정적(static) 함수] 만 담을 수 있다. (호출 규약이 동일한 애들)
-	
-	Knight k1;
-	k1.GetHp(1, 1);
-
-	//fn = &Knight::GetHp;
-
-	PMEMFUNC mfn;
-	mfn = &Knight::GetHp;
-
-	(k1.*mfn)(1, 1);
-
-	// => 멤버 함수 포인터는 *, & 구분을 잘 해주어야 한다.
-
-	Knight* k2 = new Knight();
-
-	((*k2).*mfn)(1, 1);
-	(k2->*mfn)(1, 1);
-
-	delete k2;
+	// 나중에 여유 될 때 일감을 실행한다.
+	task();
 
 	return 0;
 }
