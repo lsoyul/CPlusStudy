@@ -1,71 +1,65 @@
 ﻿#include <iostream>
 using namespace std;
 
-// 템플릿 기초
+// 템플릿 기초 - 클래스 템플릿
 
-class Knight
+// typename T를 붙이면 '조커타입' (어떤 타입도 다 넣을 수 있음)
+// 그런데 무조건 typename을 붙여야 하는 것은 아니다.
+// template< > 안에 들어가는건 [골라줘야 하는 목록] 이라고 볼 수 있음.
+template<typename T, int SIZE>
+class RandomBox
 {
 public:
-	// . . .
+	T GetRandomData()
+	{
+		int idx = rand() % SIZE;
+		return _data[idx];
+	}
 
 public:
-	int _hp = 100;
+	T _data[SIZE];
 };
 
-// template<class TYPE> - 똑같음
-template<typename TYPE>
-void Print(TYPE a)
+// 템플릿 특수화 (double 용 예외)
+template<int SIZE>
+class RandomBox<double, SIZE>
 {
-	cout << a << endl;
-}
+public:
+	double GetRandomData()
+	{
+		cout << "RandomBox Double" << endl;
+		int idx = rand() % SIZE;
+		return _data[idx];
+	}
 
-template<typename T1, typename T2>
-void Print(T1 a, T2 b)
-{
-	cout << a << " " << b << endl;
-}
-
-template<typename T>
-T Add(T a, T b)
-{
-	return a + b;
-}
-
-
-// 연산자 오버로딩 (전역함수 버전)
-//ostream& operator<<(ostream& os, const Knight& k)
-//{
-//	os << k._hp;
-//	return os;
-//}
-
-// 템플릿 특수화
-// - 어떤 특정 타입에 대해서만 다르게 동작하도록 예외처리 하고 싶을때.
-template<>
-void Print(Knight a)
-{
-	cout << "Knight !!!!!" << endl;
-	cout << a._hp << endl;
-}
-
+public:
+	double _data[SIZE];
+};
 
 int main()
 {
+	srand(static_cast<unsigned int>(time(nullptr)));
 	// 템플릿 : 함수나 클래스를 찍어내는 틀
 	// 1) 함수 템플릿
 	// 2) 클래스 템플릿
+	RandomBox<int, 10> rb1;
+	for (int i = 0; i < 10; i++)
+	{
+		rb1._data[i] = i;
+	}
+	int value1 = rb1.GetRandomData();
+	cout << value1 << endl;
 
-	Print<int>(50);
-	Print(50.0f);
-	Print(50.0);
-	Print("Hello World");
+	RandomBox<double, 10> rb2;
+	for (int i = 0; i < 10; i++)
+	{
+		rb2._data[i] = i + 0.5;
+	}
+	double value2 = rb2.GetRandomData();
+	cout << value2 << endl;
 
-	int result = Add(1, 2);
-	//result = Add(1.0f, 2);
-	float resultf = Add(2.1f, 3.0f);
-
-	Knight k1;
-	Print(k1);
+	// RandomBox<int, 10> vs RandomBox<float, 20>
+	// - 두 개는 완전 다른 클래스가 된다.
 
 	return 0;
 }
