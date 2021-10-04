@@ -4,6 +4,7 @@ using namespace std;
 
 // STL Vector
 
+
 int main()
 {
 	// STL (Standard Template Library)
@@ -19,46 +20,60 @@ int main()
 	// - 임의 접근
 
 
-	// - 동적 배열
-	// 매우 매우 중요한 개념 -> 어떤 마법을 부렸길래 배열을 '유동적으로' 사용한 것인가?
-
-	// 1) (여유분을 두고) 메모리를 할당한다.
-	// 2) 여유분까지 꽉 찼으면, 메모리를 증설한다.
-
-	// Q1) 여유분은 얼만큼이 적당할까?
-	// Q2) 증설을 얼만큼 해야 할까?
-	// Q3) 증설될 때, 기존의 데이터를 어떻게 처리할까?
-
-
-	// [ 1 2 3 4 5 ][ 마음대로 건들 수 없는 영역 ]
-	// [ 1 2 3 4 5                             ]	<= 다른 영역에 새로 할당
-	vector<int> v(1000,0);
-	vector<int> v2 = v;
-
-	v.push_back(2);
-	v.push_back(2);
-	v.push_back(2);
-	v.push_back(2);
-	// [				]
-	v.resize(1000);
-	// size (실제 사용 데이터 갯수)
-	// 1 2 3 4 5 6 7 ...
+	// 반복자 (iterator) : 포인터와 유사한 개념, 컨테이너의 원소(데이터)를 가리키고, 다음/이전 원소로 이동 가능
+	vector<int> v(10);
 	
-	//v.reserve(1000);	// <= capacity 할당
-	// capacity (여유분을 포함한 용량 갯수)
-	// 1 2 3 4 6 9 13 19 28 42 63 ...
-	// => 대략 이전 capacity의 1.5배 ~ 2배
-
-	for (int i = 0; i < 1001; i++)
+	for (vector<int>::size_type i = 0; i < v.size(); i++)
 	{
-		v.push_back(100);
-		cout << v.size() << " " << v.capacity() << endl;
+		v[i] = i;
+	}
+	
+	//vector<int>::iterator it;
+	//int* ptr;
+	//
+	//it = v.begin();
+	//ptr = &v[0];
+	//
+	//cout << (*it) << endl;
+	//cout << (*ptr) << endl;
+	//
+	//it++;
+	//++it;
+	//ptr++;
+	//++ptr;
+	
+
+	// 더 복잡해보이는데 쓰는 이유?
+	// 다른 컨테이너는 v[i] 와 같은 인덱스 접근이 아예 안되는 경우가 많기 때문이다.
+	// iterator는 vector 뿐 아니라, 다른 컨테이너에도 공통적으로 있는 개념!
+
+	vector<int>::iterator itBegin = v.begin();
+	vector<int>::iterator itEnd = v.end();
+
+	for (vector<int>::iterator it = v.begin(); it != v.end(); ++it)
+	{
+		cout << (*it) << endl;
 	}
 
 
-	v.clear();				// <= size는 0으로 capacity는 그대로
-	vector<int>().swap(v);	// <= 새로운 깡통벡터와 swap되므로 size,capacity 둘 다 0으로 초기화
-	cout << v.size() << " " << v.capacity() << endl;
+	int* ptrBegin = &v[0];			// v.begin()._Ptr;
+	int* ptrEnd = ptrBegin + 10;	//v.end()._Ptr;
+
+	for (int* ptr = ptrBegin; ptr != ptrEnd; ++ptr)
+	{
+		cout << (*ptr) << endl;
+	}
+
+
+	// const int*
+	vector<int>::const_iterator cit1 = v.cbegin();
+	//(*cit1) = 100;	// 값 수정 불가능
+
+	// reverse iterator 거꾸로 버전
+	for (vector<int>::reverse_iterator it = v.rbegin(); it != v.rend(); ++it)
+	{
+		cout << (*it) << endl;
+	}
 
 	return 0;
 }
